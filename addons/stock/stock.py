@@ -1909,9 +1909,9 @@ class stock_move(osv.osv):
                 raise osv.except_osv(_('Operation Forbidden!'), _('Cannot unreserve a done move'))
             quant_obj.quants_unreserve(cr, uid, move, context=context)
             if self.find_move_ancestors(cr, uid, move, context=context):
-                self.write(cr, uid, [move.id], {'state': 'waiting'}, context=context)
+                self.write(cr, SUPERUSER_ID, [move.id], {'state': 'waiting'}, context=context)
             else:
-                self.write(cr, uid, [move.id], {'state': 'confirmed'}, context=context)
+                self.write(cr, SUPERUSER_ID, [move.id], {'state': 'confirmed'}, context=context)
 
     def _prepare_procurement_from_move(self, cr, uid, move, context=None):
         origin = (move.group_id and (move.group_id.name + ":") or "") + (move.rule_id and move.rule_id.name or move.origin or move.picking_id.name or "/")
