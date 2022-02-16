@@ -275,11 +275,11 @@ class StockQuant(models.Model):
                 if action_fix_unreserve and self.user_has_groups('base.group_system'):
                     raise RedirectWarning(
                         _("""It is not possible to unreserve more products of %s than you have in stock.
-                             The correction could unreserve some operations with problematics products.""", product_id.display_name),
+                             The correction could unreserve some operations with problematics products.""") % product_id.display_name,
                         action_fix_unreserve.id,
                         _('Automated action to fix it'))
                 else:
-                    raise UserError(_('It is not possible to unreserve more products of %s than you have in stock. Contact an administrator.', product_id.display_name))
+                    raise UserError(_('It is not possible to unreserve more products of %s than you have in stock. Contact an administrator.') % product_id.display_name)
         else:
             return reserved_quants
 
