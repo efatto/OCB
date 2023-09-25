@@ -198,7 +198,7 @@ class ResPartner(models.Model):
             if failed_check:
                 country_code = partner_country_code or vat_country_code
                 msg = partner._construct_constraint_msg(country_code.lower() if country_code else None)
-                raise ValidationError(msg)
+                _logger.info(msg)
 
     def _construct_constraint_msg(self, country_code):
         self.ensure_one()
