@@ -291,6 +291,14 @@ class MrpBom(models.Model):
                 update_product_boms()
                 product_ids.clear()
             bom = product_boms.get(current_line.product_id)
+            if not bom and not current_line.product_id.active:
+                # Get inactive phantom bom if a inactive product with phantom bom is in
+                # the current bom.
+                # Else it will duplicate the product requested and delivered.
+                bom = self.env["mrp.bom"].with_context(active_test=False)._bom_find(
+                    product_tmpl=current_line.product_id.product_tmpl_id,
+                    product=current_line.product_id,
+                )
             if bom:
                 converted_line_quantity = current_line.product_uom_id._compute_quantity(line_quantity / bom.product_qty, bom.product_uom_id)
                 bom_lines += [(line, current_line.product_id, converted_line_quantity, current_line) for line in bom.bom_line_ids]
