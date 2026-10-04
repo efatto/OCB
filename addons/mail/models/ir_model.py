@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
+import logging
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError
+
+_logger = logging.getLogger(__name__)
 
 
 class IrModel(models.Model):
@@ -43,8 +46,13 @@ class IrModel(models.Model):
 
             query = "DELETE FROM mail_followers WHERE res_model IN %s"
             self.env.cr.execute(query, [models])
-
+            self.env.cr.execute(
+                "SET LOCAL statement_timeout = %s",
+                ("300s",),
+            )
+            _logger.info(f"Executing query {query} on records {models}")
             query = "DELETE FROM mail_message WHERE model in %s"
+            self.env.cr.execute("SET LOCAL statement_timeout = DEFAULT")
             self.env.cr.execute(query, [models])
 
         # Get files attached solely to the models being deleted (and none other)
@@ -62,7 +70,14 @@ class IrModel(models.Model):
         fnames = self.env.cr.fetchall()
 
         query = """DELETE FROM ir_attachment WHERE res_model in %s"""
+        self.env.cr.execute(
+            "SET LOCAL statement_timeout = %s",
+            ("300s",),
+        )
+
+        _logger.info(f"Executing query {query} on records {models}")
         self.env.cr.execute(query, [models])
+        self.env.cr.execute("SET LOCAL statement_timeout = DEFAULT")
 
         for (fname,) in fnames:
             self.env['ir.attachment']._file_delete(fname)
